@@ -23,10 +23,6 @@
       @apply(--shadow-elevation-2dp);
     }
 
-    :host ::content #dropdown::-webkit-scrollbar {
-       display: none;
-    }
-
     #dropdown-icon {
       position: absolute;
       right: 0;
@@ -47,9 +43,9 @@
       <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon()]]"></iron-icon>
     </paper-input-container>
-    <iron-selector id="dropdown">
+    <iron-selector id="dropdown" attrForSelected="value">
       <template is="dom-repeat" items="{{options}}">
-        <paper-item on-click="_hideDropdown">
+        <paper-item on-click="_hideDropdown" value="{{item.value}}">
           <span>{{item.label}}</span>
         </paper-item>
       </template>
@@ -142,22 +138,6 @@
     _hideDropdown : function() {
       this.open = false;
       this.playAnimation('close');
-    },
-
-    _selectedOptionLabel: function() {
-      if (this.$$('#dropdown').selected) {
-        return this.options[this.$$('#dropdown').selected].label;
-      } else {
-        return undefined;
-      }
-    },
-
-    _selectedOptionValue: function() {
-      if (this.$$('#dropdown').selected) {
-        return this.options[this.$$('#dropdown').selected].value;
-      } else {
-        return undefined;
-      }
     },
 
     _updateSelected: function() {
