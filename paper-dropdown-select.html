@@ -1,0 +1,174 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-styles/paper-styles.html">
+
+
+<dom-module id="paper-dropdown-select">
+
+  <style>
+    :host ::content #dropdown {
+      max-height: var(--paper-dropdown-height, 200px);
+      overflow-y: scroll;
+      position: absolute;
+      background-color: var(--paper-dropdown-color, white);
+      z-index: 1;
+      display: none;
+
+      @apply(--shadow-elevation-2dp);
+    }
+
+    :host ::content #dropdown::-webkit-scrollbar {
+       display: none;
+    }
+
+    #dropdown-icon {
+      position: absolute;
+      right: 0;
+    }
+
+    .iron-selected {
+      font-weight: bold;
+    }
+
+    paper-item:hover {
+     background-color: var(--paper-dropdown-highlight-color, #be46bd);
+    }
+  </style>
+
+  <template>
+    <paper-input-container on-click="_dropdownAction">
+      <label>[[label]]</label>
+      <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
+      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon()]]"></iron-icon>
+    </paper-input-container>
+    <iron-selector id="dropdown">
+      <template is="dom-repeat" items="{{options}}">
+        <paper-item on-click="_hideDropdown">
+          <span>{{item.label}}</span>
+        </paper-item>
+      </template>
+    </iron-selector>
+    <input type="hidden" name="[[name]]" value="[[selectedOption.value]]" />
+
+  </template>
+
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+
+    is: 'paper-dropdown-select',
+
+    behaviors: [
+      Polymer.IronSelectableBehavior,
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
+    properties: {
+      disabled: {
+        type: Boolean,
+        default: false,
+        reflectToAttribute: true
+      },
+
+      options: Object,
+      name: String,
+      selectedOption: Object,
+
+      _open: {
+        type: Boolean,
+        default: false
+      },
+
+
+      animationConfig: {
+        type: Object,
+        value: function() {
+          return {
+            'open': [{
+              name: 'scale-up-animation',
+              node: this.$$('#dropdown'),
+              transformOrigin: '0 0'
+            }],
+            'close': [{
+              'name': 'scale-down-animation',
+              node: this.$$('#dropdown'),
+              transformOrigin: '0 0'
+            }]
+          }
+        }
+      }
+    },
+
+    listeners: {
+      'tap': '_updateSelected',
+      'neon-animation-finish': '_displayNone'
+    },
+
+    _displayNone: function() {
+      if (!this.open) {
+        this.$$('#dropdown').style.display = 'none';
+      }
+    },
+
+    _dropdownIcon: function() {
+      if(this._open) {
+        return 'arrow-drop-up';
+      } else {
+        return 'arrow-drop-down';
+      }
+    },
+
+    _dropdownAction: function(e) {
+      if(this.open) {
+        this.open = false;
+        this.playAnimation('close');
+      } else {
+        this.open = true;
+        this.$$('#dropdown').style.display = 'block';
+        this.playAnimation('open');
+      }
+    },
+
+    _hideDropdown : function() {
+      this.open = false;
+      this.playAnimation('close');
+    },
+
+    _selectedOptionLabel: function() {
+      if (this.$$('#dropdown').selected) {
+        return this.options[this.$$('#dropdown').selected].label;
+      } else {
+        return undefined;
+      }
+    },
+
+    _selectedOptionValue: function() {
+      if (this.$$('#dropdown').selected) {
+        return this.options[this.$$('#dropdown').selected].value;
+      } else {
+        return undefined;
+      }
+    },
+
+    _updateSelected: function() {
+      var dd = this.$$('#dropdown');
+      if (dd.selected !== undefined) {
+        this.selectedOption = this.options[dd.selected];
+      }
+    }
+
+  });
+
+})();
+
+</script>
