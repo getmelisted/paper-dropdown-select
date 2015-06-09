@@ -42,7 +42,7 @@
   </style>
 
   <template>
-    <paper-input-container on-click="_dropdownAction">
+    <paper-input-container on-click="_dropdownAction" disabled$="[[disabled]]">
       <label>[[label]]</label>
       <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon()]]"></iron-icon>
