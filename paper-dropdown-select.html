@@ -22,6 +22,14 @@
 
       @apply(--shadow-elevation-2dp);
     }
+    
+    paper-input-container ::content input[is="iron-input"], iron-selector ::content paper-item {
+      @apply(--paper-dropdown-select-items);
+    }
+    
+    paper-input-container::shadow .underline {
+      display: none;
+    }
 
     #dropdown-icon {
       position: absolute;
@@ -33,17 +41,16 @@
     }
 
     paper-item:hover {
-     background-color: var(--paper-dropdown-highlight-color, #be46bd);
+     background-color: var(--paper-dropdown-highlight-color, #EBF0F3);
     }
   </style>
 
   <template>
-    <paper-input-container on-click="_dropdownAction" disabled$="[[disabled]]">
-      <label>[[label]]</label>
+    <paper-input-container on-click="_dropdownAction" disabled$="[[disabled]]" no-label-float>
       <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
-      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon()]]"></iron-icon>
+      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open)]]"></iron-icon>
     </paper-input-container>
-    <iron-selector id="dropdown" attrForSelected="value">
+    <iron-selector id="dropdown" attr-for-selected="value" selected="{{selected}}">
       <template is="dom-repeat" items="{{options}}">
         <paper-item on-click="_hideDropdown" value="{{item.value}}">
           <span>{{item.label}}</span>
@@ -72,17 +79,32 @@
     properties: {
       disabled: {
         type: Boolean,
-        default: false,
+        value: false,
         reflectToAttribute: true
       },
 
-      options: Object,
+      options: {
+        type: Array,
+        observer: '_optionsChanged'
+      },
+      
+      _optionsFormatted: {
+        type: Boolean,
+        value: false
+      },
+      
       name: String,
+      attrForSelected: String,
+      selected: {
+        type: String,
+        observer: '_selectedChanged',
+        notify: true
+      },
       selectedOption: Object,
 
       _open: {
         type: Boolean,
-        default: false
+        value: false
       },
 
 
@@ -111,13 +133,13 @@
     },
 
     _displayNone: function() {
-      if (!this.open) {
+      if (!this._open) {
         this.$$('#dropdown').style.display = 'none';
       }
     },
 
-    _dropdownIcon: function() {
-      if(this._open) {
+    _dropdownIcon: function(isOpen) {
+      if(isOpen) {
         return 'arrow-drop-up';
       } else {
         return 'arrow-drop-down';
@@ -125,28 +147,56 @@
     },
 
     _dropdownAction: function(e) {
-      if(this.open) {
-        this.open = false;
+      if(this._open) {
+        this._open = false;
         this.playAnimation('close');
       } else {
-        this.open = true;
+        this._open = true;
         this.$$('#dropdown').style.display = 'block';
         this.playAnimation('open');
       }
     },
 
     _hideDropdown : function() {
-      this.open = false;
+      this._open = false;
       this.playAnimation('close');
     },
-
-    _updateSelected: function() {
-      var dd = this.$$('#dropdown');
-      if (dd.selected !== undefined) {
-        this.selectedOption = this.options[dd.selected];
+    
+    _optionsChanged: function (newVal, oldVal) {
+      if (!this._optionsFormatted && newVal instanceof Array) {
+        this._optionsFormatted = true;
+        this.options = newVal.map(function (item) {
+          if (item instanceof Object) {
+            return item;
+          }
+          
+          return {
+            label: item,
+            value: item
+          };
+        });
+        
+        this.notifyPath('options', this.options.slice(0));
+      }
+      
+      // if it's the first time options are being populated,
+      // set the selected option
+      if (oldVal === undefined) {
+        this._selectedChanged(this.selected);
+      }
+    },
+    
+    _selectedChanged: function (newVal) {
+      if (newVal !== undefined && this.options !== undefined) {
+        
+        var ctx = this;
+        this.options.forEach(function (option) {
+          if (option[ctx.attrForSelected] === newVal) {
+            ctx.selectedOption = option;
+          }
+        });
       }
     }
-
   });
 
 })();
