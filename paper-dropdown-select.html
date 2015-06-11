@@ -30,6 +30,10 @@
     paper-input-container::shadow .underline {
       display: none;
     }
+    
+    paper-input-container {
+      padding: 0px;
+    }
 
     #dropdown-icon {
       position: absolute;
@@ -42,6 +46,12 @@
 
     paper-item:hover {
      background-color: var(--paper-dropdown-highlight-color, #EBF0F3);
+    }
+    
+    paper-item {
+      min-height: 30px;
+      padding: 10px;
+      cursor: pointer;
     }
   </style>
 
