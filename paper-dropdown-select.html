@@ -38,6 +38,7 @@
     #dropdown-icon {
       position: absolute;
       right: 0;
+      cursor: pointer;
     }
 
     .iron-selected {
@@ -113,8 +114,12 @@
       selectedOption: Object,
 
       _open: {
-        type: Boolean,
-        value: false
+        type: Boolean
+      },
+
+      icon: {
+        type: String,
+        value: null
       },
 
 
@@ -142,6 +147,10 @@
       'neon-animation-finish': '_displayNone'
     },
 
+    ready: function() {
+      this._open = false;
+    },
+
     _displayNone: function() {
       if (!this._open) {
         this.$$('#dropdown').style.display = 'none';
@@ -149,7 +158,9 @@
     },
 
     _dropdownIcon: function(isOpen) {
-      if(isOpen) {
+      if (this.icon) {
+        return this.icon;
+      } else if(isOpen) {
         return 'arrow-drop-up';
       } else {
         return 'arrow-drop-down';
