@@ -59,7 +59,7 @@
   <template>
     <paper-input-container on-click="_dropdownAction" disabled$="[[disabled]]" no-label-float>
       <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
-      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open)]]"></iron-icon>
+      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open, icon)]]"></iron-icon>
     </paper-input-container>
     <iron-selector id="dropdown" attr-for-selected="value" selected="{{selected}}">
       <template is="dom-repeat" items="{{options}}">
@@ -114,7 +114,8 @@
       selectedOption: Object,
 
       _open: {
-        type: Boolean
+        type: Boolean,
+        value: false
       },
 
       icon: {
@@ -147,19 +148,15 @@
       'neon-animation-finish': '_displayNone'
     },
 
-    ready: function() {
-      this._open = false;
-    },
-
     _displayNone: function() {
       if (!this._open) {
         this.$$('#dropdown').style.display = 'none';
       }
     },
 
-    _dropdownIcon: function(isOpen) {
-      if (this.icon) {
-        return this.icon;
+    _dropdownIcon: function(isOpen, icon) {
+      if (icon) {
+        return icon;
       } else if(isOpen) {
         return 'arrow-drop-up';
       } else {
