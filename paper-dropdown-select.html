@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../layout/layout.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-input/iron-input.html">
@@ -21,22 +22,20 @@
 
       @apply(--shadow-elevation-2dp);
     }
-    
+
     paper-input-container ::content input[is="iron-input"], iron-selector ::content paper-item {
       @apply(--paper-dropdown-select-items);
     }
-    
+
     paper-input-container::shadow .underline {
       display: none;
     }
-    
+
     paper-input-container {
       padding: 0px;
     }
 
     #dropdown-icon {
-      position: absolute;
-      right: 0;
       cursor: pointer;
     }
 
@@ -45,9 +44,9 @@
     }
 
     paper-item:hover {
-     background-color: var(--paper-dropdown-highlight-color, #EBF0F3);
+      background-color: var(--paper-dropdown-highlight-color, #EBF0F3);
     }
-    
+
     paper-item {
       min-height: 30px;
       padding: 10px;
@@ -56,10 +55,12 @@
   </style>
 
   <template>
-    <paper-input-container on-click="_dropdownAction" disabled$="[[disabled]]" no-label-float>
-      <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
+    <div class="horizontal center layout" on-click="_dropdownAction">
+      <paper-input-container disabled$="[[disabled]]" no-label-float>
+        <input is="iron-input" type="text" bind-value="{{selectedOption.label}}" disabled />
+      </paper-input-container>
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open, icon)]]"></iron-icon>
-    </paper-input-container>
+    </div>
     <iron-selector id="dropdown" attr-for-selected="value" selected="{{selected}}">
       <template is="dom-repeat" items="{{options}}">
         <paper-item on-click="_hideDropdown" value="{{item.value}}">
@@ -75,147 +76,147 @@
 
 <script>
 
-(function() {
+  (function() {
 
-  Polymer({
+    Polymer({
 
-    is: 'paper-dropdown-select',
+      is: 'paper-dropdown-select',
 
-    behaviors: [
-      Polymer.IronSelectableBehavior,
-      Polymer.NeonAnimationRunnerBehavior
-    ],
+      behaviors: [
+        Polymer.IronSelectableBehavior,
+        Polymer.NeonAnimationRunnerBehavior
+      ],
 
-    properties: {
-      disabled: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
+      properties: {
+        disabled: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
 
-      options: {
-        type: Array,
-        observer: '_optionsChanged'
-      },
-      
-      _optionsFormatted: {
-        type: Boolean,
-        value: false
-      },
-      
-      name: String,
-      attrForSelected: String,
-      selected: {
-        type: String,
-        observer: '_selectedChanged',
-        notify: true
-      },
-      selectedOption: Object,
+        options: {
+          type: Array,
+          observer: '_optionsChanged'
+        },
 
-      _open: {
-        type: Boolean,
-        value: false
-      },
+        _optionsFormatted: {
+          type: Boolean,
+          value: false
+        },
 
-      icon: {
-        type: String,
-        value: null
-      },
+        name: String,
+        attrForSelected: String,
+        selected: {
+          type: String,
+          observer: '_selectedChanged',
+          notify: true
+        },
+        selectedOption: Object,
+
+        _open: {
+          type: Boolean,
+          value: false
+        },
+
+        icon: {
+          type: String,
+          value: null
+        },
 
 
-      animationConfig: {
-        type: Object,
-        value: function() {
-          return {
-            'open': [{
-              name: 'scale-up-animation',
-              node: this.$$('#dropdown'),
-              transformOrigin: '0 0'
-            }],
-            'close': [{
-              'name': 'scale-down-animation',
-              node: this.$$('#dropdown'),
-              transformOrigin: '0 0'
-            }]
+        animationConfig: {
+          type: Object,
+          value: function() {
+            return {
+              'open': [{
+                name: 'scale-up-animation',
+                node: this.$$('#dropdown'),
+                transformOrigin: '0 0'
+              }],
+              'close': [{
+                'name': 'scale-down-animation',
+                node: this.$$('#dropdown'),
+                transformOrigin: '0 0'
+              }]
+            }
           }
         }
-      }
-    },
+      },
 
-    listeners: {
-      'tap': '_updateSelected',
-      'neon-animation-finish': '_displayNone'
-    },
+      listeners: {
+        'tap': '_updateSelected',
+        'neon-animation-finish': '_displayNone'
+      },
 
-    _displayNone: function() {
-      if (!this._open) {
-        this.$$('#dropdown').style.display = 'none';
-      }
-    },
+      _displayNone: function() {
+        if (!this._open) {
+          this.$$('#dropdown').style.display = 'none';
+        }
+      },
 
-    _dropdownIcon: function(isOpen, icon) {
-      if (icon) {
-        return icon;
-      } else if(isOpen) {
-        return 'arrow-drop-up';
-      } else {
-        return 'arrow-drop-down';
-      }
-    },
+      _dropdownIcon: function(isOpen, icon) {
+        if (icon) {
+          return icon;
+        } else if(isOpen) {
+          return 'arrow-drop-up';
+        } else {
+          return 'arrow-drop-down';
+        }
+      },
 
-    _dropdownAction: function(e) {
-      if(this._open) {
+      _dropdownAction: function(e) {
+        if(this._open) {
+          this._open = false;
+          this.playAnimation('close');
+        } else {
+          this._open = true;
+          this.$$('#dropdown').style.display = 'block';
+          this.playAnimation('open');
+        }
+      },
+
+      _hideDropdown : function() {
         this._open = false;
         this.playAnimation('close');
-      } else {
-        this._open = true;
-        this.$$('#dropdown').style.display = 'block';
-        this.playAnimation('open');
-      }
-    },
+      },
 
-    _hideDropdown : function() {
-      this._open = false;
-      this.playAnimation('close');
-    },
-    
-    _optionsChanged: function (newVal, oldVal) {
-      if (!this._optionsFormatted && newVal instanceof Array) {
-        this._optionsFormatted = true;
-        this.options = newVal.map(function (item) {
-          if (item instanceof Object) {
-            return item;
-          }
-          
-          return {
-            label: item,
-            value: item
-          };
-        });
-        
-        this.notifyPath('options', this.options.slice(0));
-      }
-      
-      // if it's the first time options are being populated,
-      // set the selected option
-      if (oldVal === undefined) {
-        this._selectedChanged(this.selected);
-      }
-    },
-    
-    _selectedChanged: function (newVal) {
-      if (newVal !== undefined && this.options !== undefined) {
-        
-        var ctx = this;
-        this.options.forEach(function (option) {
-          if (option[ctx.attrForSelected] === newVal) {
-            ctx.selectedOption = option;
-          }
-        });
-      }
-    }
-  });
+      _optionsChanged: function (newVal, oldVal) {
+        if (!this._optionsFormatted && newVal instanceof Array) {
+          this._optionsFormatted = true;
+          this.options = newVal.map(function (item) {
+            if (item instanceof Object) {
+              return item;
+            }
 
-})();
+            return {
+              label: item,
+              value: item
+            };
+          });
+
+          this.notifyPath('options', this.options.slice(0));
+        }
+
+        // if it's the first time options are being populated,
+        // set the selected option
+        if (oldVal === undefined) {
+          this._selectedChanged(this.selected);
+        }
+      },
+
+      _selectedChanged: function (newVal) {
+        if (newVal !== undefined && this.options !== undefined) {
+
+          var ctx = this;
+          this.options.forEach(function (option) {
+            if (option[ctx.attrForSelected] === newVal) {
+              ctx.selectedOption = option;
+            }
+          });
+        }
+      }
+    });
+
+  })();
 
 </script>
