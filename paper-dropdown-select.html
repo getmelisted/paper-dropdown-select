@@ -50,16 +50,11 @@
   <template>
     <div style="position:relative;">
       <div class="horizontal center layout" on-click="_dropdownAction">
-        <span>{{selected}}</span>
+        <span hidden$="{{hideLabel}}">{{selected}}</span>
         <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open, icon)]]"></iron-icon>
       </div>
       <paper-menu id="dropdown" attr-for-selected="{{attrForSelected}}" selected="{{selected}}">
         <content></content>
-        <!--<template is="dom-repeat" items="{{options}}">-->
-          <!--<paper-item on-click="_hideDropdown" value="{{item.value}}">-->
-            <!--<span>{{item.label}}</span>-->
-          <!--</paper-item>-->
-        <!--</template>-->
       </paper-menu>
     </div>
 
@@ -100,6 +95,10 @@
         icon: {
           type: String,
           value: null
+        },
+        hideLabel: {
+          type: Boolean,
+          value: false
         },
         animationConfig: {
           type: Object,
