@@ -3,17 +3,18 @@
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-input/iron-input.html">
-<link rel="import" href="../iron-selector/iron-selector.html">
 <link rel="import" href="../neon-animation/neon-animation.html">
 <link rel="import" href="../paper-input/paper-input-container.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-styles/paper-styles.html">
-<link rel="import" href="../paper-menu/paper-menu.html">
 
 
 <dom-module id="paper-dropdown-select">
 
   <style>
+    .container {
+      position: relative;
+    }
     #dropdown {
       max-height: var(--paper-dropdown-height, 500px);
       position: absolute;
@@ -26,7 +27,7 @@
       @apply(--shadow-elevation-2dp);
     }
 
-    paper-menu::content paper-item {
+    #dropdown ::content paper-item {
       @apply(--paper-dropdown-select-items);
     }
 
@@ -48,16 +49,15 @@
   </style>
 
   <template>
-    <div style="position:relative;">
-      <div class="horizontal center layout" on-click="_dropdownAction">
-        <span hidden$="{{hideLabel}}">{{selected}}</span>
-        <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(_open, icon)]]"></iron-icon>
+    <div class="container" on-click="_dropdownAction">
+      <div class="horizontal center layout">
+        <span hidden$="{{!label}}">{{label}}</span>
+        <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" hidden$="{{hideIcon}}"></iron-icon>
       </div>
-      <paper-menu id="dropdown" attr-for-selected="{{attrForSelected}}" selected="{{selected}}">
-        <content></content>
-      </paper-menu>
+      <div id="dropdown">
+        <content select="paper-menu"></content>
+      </div>
     </div>
-
   </template>
 
 </dom-module>
@@ -71,7 +71,6 @@
       is: 'paper-dropdown-select',
 
       behaviors: [
-        Polymer.IronSelectableBehavior,
         Polymer.NeonAnimationRunnerBehavior
       ],
 
@@ -88,15 +87,20 @@
           observer: '_selectedChanged',
           notify: true
         },
-        _open: {
+        opened: {
           type: Boolean,
-          value: false
+          value: false,
+          notify: true
+        },
+        label: {
+          type: String,
+          value: null
         },
         icon: {
           type: String,
           value: null
         },
-        hideLabel: {
+        hideIcon: {
           type: Boolean,
           value: false
         },
@@ -118,12 +122,21 @@
           }
         }
       },
+
       listeners: {
-        'tap': '_updateSelected',
         'neon-animation-finish': '_displayNone'
       },
+
+      open: function() {
+        this._open();
+      },
+
+      close: function() {
+        this._close();
+      },
+
       _displayNone: function() {
-        if (!this._open) {
+        if (!this.opened) {
           this.$$('#dropdown').style.display = 'none';
         }
       },
@@ -138,19 +151,27 @@
         }
       },
 
+      _open: function() {
+        this.opened = true;
+        this.$$('#dropdown').style.display = 'block';
+        this.playAnimation('open');
+      },
+
+      _close: function() {
+        this.opened = false;
+        this.playAnimation('close');
+      },
+
       _dropdownAction: function(e) {
-        if(this._open) {
-          this._open = false;
-          this.playAnimation('close');
+        if(this.opened) {
+          this._close();
         } else {
-          this._open = true;
-          this.$$('#dropdown').style.display = 'block';
-          this.playAnimation('open');
+          this._open();
         }
       },
 
       _hideDropdown : function() {
-        this._open = false;
+        this.opened = false;
         this.playAnimation('close');
       },
 
