@@ -16,9 +16,7 @@
       position: relative;
     }
     #dropdown {
-      max-height: var(--paper-dropdown-height, 500px);
       position: absolute;
-      right: 0;
       background-color: var(--paper-dropdown-color, white);
       z-index: 1;
       display: none;
@@ -29,22 +27,15 @@
 
     #dropdown ::content paper-item {
       @apply(--paper-dropdown-select-items);
+      cursor: pointer;
     }
 
     #dropdown-icon {
       cursor: pointer;
     }
 
-    .iron-selected {
-      font-weight: bold;
-    }
-
     paper-item:hover {
       background-color: var(--paper-dropdown-highlight-color, #EBF0F3);
-    }
-
-    paper-item {
-      cursor: pointer;
     }
   </style>
 
@@ -75,52 +66,51 @@
       ],
 
       properties: {
-        disabled: {
+
+        autoDisabled: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
-        name: String,
-        attrForSelected: String,
-        selected: {
-          type: String,
-          observer: '_selectedChanged',
-          notify: true
-        },
+
         opened: {
           type: Boolean,
           value: false,
           notify: true
         },
+
         label: {
           type: String,
           value: null
         },
+
         icon: {
           type: String,
           value: null
         },
+
         hideIcon: {
           type: Boolean,
           value: false
         },
+
         animationConfig: {
           type: Object,
           value: function() {
             return {
-              'open': [{
+              open: [{
                 name: 'scale-up-animation',
                 node: this.$$('#dropdown'),
                 transformOrigin: '0 0'
               }],
-              'close': [{
-                'name': 'scale-down-animation',
+              close: [{
+                name: 'scale-down-animation',
                 node: this.$$('#dropdown'),
                 transformOrigin: '0 0'
               }]
             }
           }
         }
+        
       },
 
       listeners: {
@@ -152,18 +142,25 @@
       },
 
       _open: function() {
-        this.opened = true;
-        this.$$('#dropdown').style.display = 'block';
-        this.playAnimation('open');
+        if (!this.opened) {
+          this.opened = true;
+          this.$$('#dropdown').style.display = 'block';
+          this.playAnimation('open');
+        }
       },
 
       _close: function() {
-        this.opened = false;
-        this.playAnimation('close');
+        if (this.opened) {
+          this.opened = false;
+          this.playAnimation('close');
+        }
       },
 
       _dropdownAction: function(e) {
-        if(this.opened) {
+        if (this.autoDisabled) {
+          return;
+        }
+        if (this.opened) {
           this._close();
         } else {
           this._open();
@@ -173,10 +170,6 @@
       _hideDropdown : function() {
         this.opened = false;
         this.playAnimation('close');
-      },
-
-      _selectedChanged: function (newVal) {
-        this._hideDropdown();
       }
     });
 
