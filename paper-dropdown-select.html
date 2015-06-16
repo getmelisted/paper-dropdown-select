@@ -12,7 +12,8 @@
 <dom-module id="paper-dropdown-select">
 
   <style>
-    .container {
+    :host {
+      display: block;
       position: relative;
     }
     #dropdown {
@@ -40,14 +41,12 @@
   </style>
 
   <template>
-    <div class="container" on-click="_dropdownAction">
-      <div class="horizontal center layout">
-        <span hidden$="{{!label}}">{{label}}</span>
-        <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" hidden$="{{hideIcon}}"></iron-icon>
-      </div>
-      <div id="dropdown">
-        <content select="paper-menu"></content>
-      </div>
+    <div class="horizontal center layout" on-click="_dropdownAction">
+      <span hidden$="{{!label}}">{{label}}</span>
+      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" hidden$="{{hideIcon}}"></iron-icon>
+    </div>
+    <div id="dropdown" on-click="_dropdownAction">
+      <content select="paper-menu"></content>
     </div>
   </template>
 
@@ -110,7 +109,7 @@
             }
           }
         }
-        
+
       },
 
       listeners: {
