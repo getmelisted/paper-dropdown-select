@@ -43,11 +43,11 @@
   <template>
     <div class="horizontal center layout" on-click="_dropdownAction">
       <span hidden$="{{!label}}">{{label}}</span>
-      <content select=":not(paper-menu)"></content>
+      <content select=":not(.dropdown)"></content>
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" hidden$="{{hideIcon}}"></iron-icon>
     </div>
     <div id="dropdown" on-click="_dropdownAction">
-      <content select="paper-menu"></content>
+      <content select=".dropdown"></content>
     </div>
   </template>
 
