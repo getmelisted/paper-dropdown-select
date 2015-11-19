@@ -44,7 +44,7 @@
     <div class="horizontal center layout" on-click="_dropdownAction">
       <span hidden$="{{!label}}">{{label}}</span>
       <content select=":not(.dropdown)"></content>
-      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" hidden$="{{hideIcon}}"></iron-icon>
+      <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" src=[[src]] hidden$="{{hideIcon}}"></iron-icon>
     </div>
     <div id="dropdown" on-click="_dropdownAction">
       <content select=".dropdown"></content>
@@ -88,9 +88,19 @@
           value: null
         },
 
+        src: {
+          type: String,
+          value: ''
+        },
+
         hideIcon: {
           type: Boolean,
           value: false
+        },
+
+        animationOrigin: {
+          type: String,
+          value: '0 0'
         },
 
         animationConfig: {
@@ -142,24 +152,22 @@
       },
 
       _open: function() {
-        if (!this.opened) {
-          this.opened = true;
-          this.$$('#dropdown').style.display = 'block';
-          this.playAnimation('open');
-        }
+        if (this.opened) { return; }
+        this.opened = true;
+        this.animationConfig.open[0].transformOrigin = this.animationOrigin;
+        this.$$('#dropdown').style.display = 'block';
+        this.playAnimation('open');
       },
 
       _close: function() {
-        if (this.opened) {
-          this.opened = false;
-          this.playAnimation('close');
-        }
+        if (!this.opened) { return; }
+        this.opened = false;
+        this.animationConfig.close[0].transformOrigin = this.animationOrigin;
+        this.playAnimation('close');
       },
 
       _dropdownAction: function(e) {
-        if (this.autoDisabled) {
-          return;
-        }
+        if (this.autoDisabled) { return; }
         if (this.opened) {
           this._close();
         } else {
