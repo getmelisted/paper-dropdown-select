@@ -18,7 +18,6 @@
   "homepage": "https://github.com/xicreative/paper-dropdown-select",
   "ignore": [],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.0.0",
     "paper-item": "PolymerElements/paper-item#^1.0.0",
     "iron-icon": "PolymerElements/iron-icon#^1.0.0",
     "iron-icons": "PolymerElements/iron-icons#^1.0.0",
@@ -27,7 +26,8 @@
     "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.0.0",
     "paper-input": "PolymerElements/paper-input#^1.0.0",
     "paper-styles": "PolymerElements/paper-styles#^1.0.0",
-    "paper-menu": "PolymerElements/paper-menu#~1.0.0"
+    "paper-menu": "PolymerElements/paper-menu#~1.0.0",
+    "polymer": "Polymer/polymer#~1.2.3"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
