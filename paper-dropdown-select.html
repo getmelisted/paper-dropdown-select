@@ -48,7 +48,7 @@
       <content select=":not(.dropdown)"></content>
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" src=[[src]] hidden$="{{hideIcon}}"></iron-icon>
     </div>
-    <div id="dropdown" on-click="_dropdownAction">
+    <div id="dropdown">
       <content select=".dropdown"></content>
     </div>
   </template>
@@ -112,12 +112,14 @@
               open: [{
                 name: 'scale-up-animation',
                 node: this.$$('#dropdown'),
-                transformOrigin: '0 0'
+                transformOrigin: '0 0',
+                timing: {duration: 350}
               }],
               close: [{
                 name: 'scale-down-animation',
                 node: this.$$('#dropdown'),
-                transformOrigin: '0 0'
+                transformOrigin: '0 0',
+                timing: {duration: 350}
               }]
             }
           }
@@ -159,6 +161,14 @@
         this.animationConfig.open[0].transformOrigin = this.animationOrigin;
         this.$$('#dropdown').style.display = 'block';
         this.playAnimation('open');
+
+        var ctx = this;
+        this.async(function() {
+          Polymer.Gestures.add(document, 'tap', null);
+          document.addEventListener('tap', function () {
+            ctx.close();
+          }, true);
+        }, 1);
       },
 
       _close: function() {
@@ -166,13 +176,14 @@
         this.opened = false;
         this.animationConfig.close[0].transformOrigin = this.animationOrigin;
         this.playAnimation('close');
+
+        Polymer.Gestures.remove(document, 'tap', null);
+        document.removeEventListener('tap', function () {}, true);
       },
 
       _dropdownAction: function(e) {
         if (this.autoDisabled) { return; }
-        if (this.opened) {
-          this._close();
-        } else {
+        if (!this.opened) {
           this._open();
         }
       },
