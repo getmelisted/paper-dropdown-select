@@ -48,7 +48,7 @@
       <content select=":not(.dropdown)"></content>
       <iron-icon id="dropdown-icon" icon="[[_dropdownIcon(opened, icon)]]" src=[[src]] hidden$="{{hideIcon}}"></iron-icon>
     </div>
-    <div id="dropdown">
+    <div id="dropdown" on-click="_dropdownAction">
       <content select=".dropdown"></content>
     </div>
   </template>
@@ -100,6 +100,11 @@
           value: false
         },
 
+        freeze: {
+          type: Boolean,
+          value: false
+        },
+
         animationOrigin: {
           type: String,
           value: '0 0'
@@ -140,6 +145,8 @@
       },
 
       _displayNone: function() {
+        this.freeze = false;
+
         if (!this.opened) {
           this.$$('#dropdown').style.display = 'none';
         }
@@ -156,34 +163,42 @@
       },
 
       _open: function() {
-        if (this.opened) { return; }
+        if (this.opened || this.freeze) { return; }
         this.opened = true;
-        this.animationConfig.open[0].transformOrigin = this.animationOrigin;
-        this.$$('#dropdown').style.display = 'block';
-        this.playAnimation('open');
+        this.freeze = true;
 
         var ctx = this;
         this.async(function() {
+          ctx.animationConfig.open[0].transformOrigin = ctx.animationOrigin;
+          ctx.$$('#dropdown').style.display = 'block';
+          ctx.playAnimation('open');
           Polymer.Gestures.add(document, 'tap', null);
           document.addEventListener('tap', function () {
             ctx.close();
           }, true);
-        }, 1);
+        }, 100);
       },
 
       _close: function() {
-        if (!this.opened) { return; }
+        if (!this.opened || this.freeze) { return; }
         this.opened = false;
-        this.animationConfig.close[0].transformOrigin = this.animationOrigin;
-        this.playAnimation('close');
+        this.freeze = true;
 
-        Polymer.Gestures.remove(document, 'tap', null);
-        document.removeEventListener('tap', function () {}, true);
+        var ctx = this;
+        this.async(function() {
+          ctx.animationConfig.close[0].transformOrigin = ctx.animationOrigin;
+          ctx.playAnimation('close');
+
+          Polymer.Gestures.remove(document, 'tap', null);
+          document.removeEventListener('tap', function () {}, true);
+        }, 100);
       },
 
       _dropdownAction: function(e) {
         if (this.autoDisabled) { return; }
-        if (!this.opened) {
+        if (this.opened) {
+          this._close();
+        } else {
           this._open();
         }
       },
